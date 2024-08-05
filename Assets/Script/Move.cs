@@ -39,5 +39,6 @@ public class Move : IStateMachine
     {
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
+        _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
     }
 }
