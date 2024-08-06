@@ -8,6 +8,10 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     private float _speed;
+    [SerializeField]
+    private Bullet _bulletObject;
+    [SerializeField]
+    private Transform _muzzle;
 
     public float Speed => _speed;
 
@@ -53,5 +57,11 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         _currentState.FixedUpdate();
+    }
+
+    public void Shoot()
+    { 
+        var bullet =  Instantiate(_bulletObject, _muzzle.position, Quaternion.identity);
+        bullet.Direction = transform.forward;
     }
 }

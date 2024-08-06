@@ -25,7 +25,7 @@ public class Move : IStateMachine
 
     public void FixedUpdate()
     {
-        var dir = Vector3.forward * _v + Vector3.right * _h;
+        var dir  = Vector3.forward * _v + Vector3.right * _h;
         dir = Camera.main.transform.TransformDirection(dir);
         dir.y = 0;
         if(_h != 0 || _v != 0)
@@ -40,5 +40,9 @@ public class Move : IStateMachine
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
+        if(Input.GetButtonDown("Fire1"))
+        {
+            _player.Shoot();
+        }
     }
 }
