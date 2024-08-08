@@ -7,6 +7,7 @@ public class Move : IStateMachine
     private Player _player;
     private float _h;
     private float _v;
+    private float _timer;
 
     public Move(Player player)
     {
@@ -40,9 +41,19 @@ public class Move : IStateMachine
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
-        if(Input.GetButtonDown("Fire1"))
+        if(Input.GetButton("Fire1"))
         {
-            _player.Shoot();
+            _timer += Time.deltaTime;
+            if (_player.BulletInterval < _timer)
+            {
+                _player.Shoot();
+                _player.Anim.SetBool("Attack1", true);
+                _timer = 0;
+            }
+        }
+        else
+        {
+            _player.Anim.SetBool("Attack1", false);
         }
     }
 }

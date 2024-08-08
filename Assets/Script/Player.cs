@@ -12,11 +12,14 @@ public class Player : MonoBehaviour
     private Bullet _bulletObject;
     [SerializeField]
     private Transform _muzzle;
+    [SerializeField]
+    private float _bulletInterval;
 
     public float Speed => _speed;
 
     public Rigidbody Rb { get; set; }
     public Animator Anim {  get; set; }
+    public float BulletInterval => _bulletInterval;
 
     IStateMachine _currentState;
     IStateMachine[] _states = new IStateMachine[(int)MoveState.Max];

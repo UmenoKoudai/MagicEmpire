@@ -710,6 +710,7 @@ MonoBehaviour:
   _bulletObject: {fileID: 6954662813107443871, guid: 010a46960ab5c2c43a1560cb11e6e547,
     type: 3}
   _muzzle: {fileID: 541221087}
+  _bulletInterval: 1
 --- !u!54 &1538844117
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -932,6 +933,18 @@ PrefabInstance:
     - target: {fileID: 400210, guid: 0404ac7dc12f1524e8ab210e57629e8f, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.557
+      objectReference: {fileID: 0}
+    - target: {fileID: 400250, guid: 0404ac7dc12f1524e8ab210e57629e8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 59.57172
+      objectReference: {fileID: 0}
+    - target: {fileID: 400250, guid: 0404ac7dc12f1524e8ab210e57629e8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -179.27705
+      objectReference: {fileID: 0}
+    - target: {fileID: 400250, guid: 0404ac7dc12f1524e8ab210e57629e8f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -91.578156
       objectReference: {fileID: 0}
     - target: {fileID: 9500000, guid: 0404ac7dc12f1524e8ab210e57629e8f, type: 3}
       propertyPath: m_Controller
