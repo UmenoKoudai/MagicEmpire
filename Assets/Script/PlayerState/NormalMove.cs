@@ -1,15 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Move : IStateMachine
+public class NormalMove : IStateMachine
 {
     private Player _player;
     private float _h;
     private float _v;
     private float _timer;
 
-    public Move(Player player)
+    public NormalMove(Player player)
     {
         _player = player;
     }
@@ -26,7 +24,7 @@ public class Move : IStateMachine
 
     public void FixedUpdate()
     {
-        var dir  = Vector3.forward * _v + Vector3.right * _h;
+        var dir  = new Vector3(_h, 0, _v);
         dir = Camera.main.transform.TransformDirection(dir);
         dir.y = 0;
         if(_h != 0 || _v != 0)
@@ -41,6 +39,12 @@ public class Move : IStateMachine
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _player.StateChange(Player.MoveState.Dush);
+        }
+
+        //‰º‰¼‚Å’e‚ðŒ‚‚ÂŽd‘g‚Ý
         if(Input.GetButton("Fire1"))
         {
             _timer += Time.deltaTime;
@@ -55,5 +59,6 @@ public class Move : IStateMachine
         {
             _player.Anim.SetBool("Attack1", false);
         }
+        //
     }
 }

@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     IStateMachine _currentState;
     IStateMachine[] _states = new IStateMachine[(int)MoveState.Max];
 
-    private MoveState _nowState = MoveState.Move;
+    private MoveState _nowState = MoveState.Normal;
 
     public MoveState State
     {
@@ -39,7 +39,8 @@ public class Player : MonoBehaviour
 
     public enum MoveState
     {
-        Move,
+        Normal,
+        Dush,
 
         Max,
     }
@@ -48,7 +49,8 @@ public class Player : MonoBehaviour
     {
         Rb = GetComponent<Rigidbody>();
         Anim = GetComponent<Animator>();
-        _states[(int)MoveState.Move] = new Move(this);
+        _states[(int)MoveState.Normal] = new NormalMove(this);
+        _states[(int)MoveState.Dush] = new DushMove(this);
         _currentState = _states[(int)_nowState];
     }
 
@@ -66,5 +68,10 @@ public class Player : MonoBehaviour
     { 
         var bullet =  Instantiate(_bulletObject, _muzzle.position, Quaternion.identity);
         bullet.Direction = transform.forward;
+    }
+
+    public void StateChange(MoveState value)
+    {
+        State = value;
     }
 }
