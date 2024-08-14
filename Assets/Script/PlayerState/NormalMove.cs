@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 public class NormalMove : IStateMachine
@@ -14,12 +15,14 @@ public class NormalMove : IStateMachine
 
     public void Enter()
     {
-        throw new System.NotImplementedException();
+        _player.DushEffect.gameObject.SetActive(false);
+        _player.Transposer.m_FollowOffset.y = _player.DefaultPositionY;
+        _player.Composer.m_TrackedObjectOffset.y = _player.DefaultRotationY;
     }
 
-    public void Exit()
+    public void Exit(Player.MoveState change)
     {
-        throw new System.NotImplementedException();
+        _player.StateChange(change);
     }
 
     public void FixedUpdate()
@@ -41,7 +44,7 @@ public class NormalMove : IStateMachine
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
-            _player.StateChange(Player.MoveState.Dush);
+            Exit(Player.MoveState.Dush);
         }
 
         //‰º‰¼‚Å’e‚ðŒ‚‚ÂŽd‘g‚Ý

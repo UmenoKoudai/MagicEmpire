@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 public class DushMove : IStateMachine
@@ -13,12 +14,14 @@ public class DushMove : IStateMachine
 
     public void Enter()
     {
-        throw new System.NotImplementedException();
+        _player.DushEffect.gameObject.SetActive(true);
+        _player.Transposer.m_FollowOffset.y = _player.DushPositionY;
+        _player.Composer.m_TrackedObjectOffset.y = _player.DushRotationY;
     }
 
-    public void Exit()
+    public void Exit(Player.MoveState change)
     {
-        throw new System.NotImplementedException();
+        _player.StateChange(change);
     }
 
     public void FixedUpdate()
@@ -39,9 +42,9 @@ public class DushMove : IStateMachine
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            _player.StateChange(Player.MoveState.Normal);
+            Exit(Player.MoveState.Normal);
         }
     }
 }
