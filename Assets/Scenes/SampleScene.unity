@@ -5537,7 +5537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 10
-  _bulletObject: {fileID: 6954662813107443871, guid: 010a46960ab5c2c43a1560cb11e6e547,
+  _bulletObject: {fileID: 8828485111070945007, guid: 2b8dcb1899db8d444b28317d4195724d,
     type: 3}
   _muzzle: {fileID: 541221087}
   _bulletInterval: 1
