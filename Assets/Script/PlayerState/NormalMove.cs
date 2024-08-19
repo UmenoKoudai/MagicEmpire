@@ -42,6 +42,8 @@ public class NormalMove : IStateMachine
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
+
+        //左シフト押したらダッシュ移動に以降
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
             Exit(Player.MoveState.Dush);
