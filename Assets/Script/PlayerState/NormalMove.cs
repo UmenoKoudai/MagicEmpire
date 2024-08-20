@@ -1,12 +1,16 @@
-using Cinemachine;
 using UnityEngine;
 
+
+/// <summary>
+/// 通常の移動ステート
+/// </summary>
 public class NormalMove : IStateMachine
 {
     private Player _player;
     private float _h;
     private float _v;
     private float _timer;
+    private int _state;
 
     public NormalMove(Player player)
     {
@@ -20,9 +24,9 @@ public class NormalMove : IStateMachine
         _player.Composer.m_TrackedObjectOffset.y = _player.DefaultRotationY;
     }
 
-    public void Exit(Player.MoveState change)
+    public void Exit()
     {
-        _player.StateChange(change);
+        _player.StateChange((Player.MoveState)_state);
     }
 
     public void FixedUpdate()
@@ -34,7 +38,7 @@ public class NormalMove : IStateMachine
         {
             _player.transform.forward = dir;
         }
-        _player.Rb.velocity = dir.normalized * 10 + _player.Rb.velocity.y * Vector3.up;
+        _player.Rb.velocity = dir.normalized * _player.Speed + _player.Rb.velocity.y * Vector3.up;
     }
 
     public void Update()
@@ -46,7 +50,8 @@ public class NormalMove : IStateMachine
         //左シフト押したらダッシュ移動に以降
         if(Input.GetKeyDown(KeyCode.LeftShift))
         {
-            Exit(Player.MoveState.Dush);
+            _state = (int)Player.MoveState.Dush;
+            Exit();
         }
 
         //下仮で弾を撃つ仕組み

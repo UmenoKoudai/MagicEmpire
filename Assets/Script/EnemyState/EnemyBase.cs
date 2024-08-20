@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// エネミーの基底クラス
+/// </summary>
 public class EnemyBase : MonoBehaviour
 {
     [SerializeField, Tooltip("エネミーの移動速度")]
@@ -29,6 +30,8 @@ public class EnemyBase : MonoBehaviour
     private IStateMachine[] _states = new IStateMachine[(int)EnemyState.Max];
     private IStateMachine _currentState;
 
+    public Rigidbody Rb { get; set; }
+
     public EnemyState State
     {
         set
@@ -40,6 +43,7 @@ public class EnemyBase : MonoBehaviour
 
     private void Start()
     {
+        Rb = GetComponent<Rigidbody>();
         //_states[(int)EnemyState.FreeMove] = new FreeMove();
         _currentState = _states[(int)EnemyState.FreeMove];
     }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField, Tooltip("’e‚ÌˆÚ“®‘¬“x")]
     private float _speed = 20;
 
     public Vector3 Direction { get; set; }

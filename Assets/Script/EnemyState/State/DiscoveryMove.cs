@@ -2,17 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DiscoveryMove : MonoBehaviour
+/// <summary>
+/// プレイヤーを発見した時のステート
+/// </summary>
+public class DiscoveryMove : IStateMachine
 {
-    // Start is called before the first frame update
-    void Start()
+    private EnemyBase _enemy;
+    private Player _player;
+
+    public DiscoveryMove(EnemyBase enemy, Player player)
     {
-        
+        _enemy = enemy;
+        _player = player;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Enter()
     {
-        
+        throw new System.NotImplementedException();
+    }
+
+    public void Exit()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void FixedUpdate()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Update()
+    {
+        throw new System.NotImplementedException();
     }
 }

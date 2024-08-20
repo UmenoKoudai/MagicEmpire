@@ -1,6 +1,9 @@
 using Cinemachine;
 using UnityEngine;
 
+/// <summary>
+/// ダッシュの移動ステート
+/// </summary>
 public class DushMove : IStateMachine
 {
     private Player _player;
@@ -19,9 +22,9 @@ public class DushMove : IStateMachine
         _player.Composer.m_TrackedObjectOffset.y = _player.DushRotationY;
     }
 
-    public void Exit(Player.MoveState change)
+    public void Exit()
     {
-        _player.StateChange(change);
+        _player.StateChange(Player.MoveState.Normal);
     }
 
     public void FixedUpdate()
@@ -47,7 +50,7 @@ public class DushMove : IStateMachine
         //左シフトから手を離したら通常移動に移行する
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            Exit(Player.MoveState.Normal);
+            Exit();
         }
     }
 }
