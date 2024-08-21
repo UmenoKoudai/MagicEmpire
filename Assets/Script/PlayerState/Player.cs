@@ -4,35 +4,35 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [Header("キャラの動きに関する設定")]
-    [SerializeField]
+    [SerializeField, Tooltip("")]
     private float _speed;
     public float Speed => _speed;
 
     [Header("弾に関する設定")]
-    [SerializeField]
+    [SerializeField, Tooltip("")]
     private Bullet _bulletObject;
-    [SerializeField]
+    [SerializeField, Tooltip("弾を発射する場所")]
     private Transform _muzzle;
-    [SerializeField]
+    [SerializeField, Tooltip("弾を発射する間隔")]
     private float _bulletInterval;
     public float BulletInterval => _bulletInterval;
 
     [Header("カメラに関する設定")]
-    [SerializeField]
+    [SerializeField, Tooltip("プレイヤーカメラ")]
     private CinemachineVirtualCamera _playerCamera;
-    [SerializeField]
+    [SerializeField, Tooltip("デフォルトのY座標")]
     private float _defaultPositionY = 5f;
     public float DefaultPositionY => _defaultPositionY;
-    [SerializeField]
+    [SerializeField, Tooltip("デフォルトのY角度")]
     private float _defaultRotationY = 2f;
     public float DefaultRotationY => _defaultRotationY;
-    [SerializeField]
+    [SerializeField, Tooltip("ダッシュ時のY座標")]
     private float _dushPositionY = 4f;
     public float DushPositionY => _dushPositionY;
-    [SerializeField]
+    [SerializeField, Tooltip("ダッシュ時のY角度")]
     private float _dushRotationY = 4f;
     public float DushRotationY => _dushRotationY;
-    [SerializeField]
+    [SerializeField, Tooltip("ダッシュのエフェクト")]
     private ParticleSystem _dushEffect;
     public ParticleSystem DushEffect => _dushEffect;
 

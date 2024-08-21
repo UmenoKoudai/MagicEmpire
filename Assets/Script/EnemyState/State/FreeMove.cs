@@ -18,6 +18,8 @@ public class FreeMove : IStateMachine
     {
         //最初に移動する位置を計算する
         _direction = GetDir();
+        _enemy.MarkerCreate(_direction);
+        _direction.y = 0;
     }
 
     public void Exit()
@@ -27,11 +29,15 @@ public class FreeMove : IStateMachine
 
     public void FixedUpdate()
     {
-        _enemy.Rb.velocity = _direction * _enemy.Speed + _enemy.Rb.velocity.y * Vector3.up;
+        var velocity = (_direction - _enemy.transform.position).normalized * _enemy.Speed;
+        velocity.y = _enemy.Rb.velocity.y;
+        _enemy.Rb.velocity = velocity;
     }
 
     public void Update()
     {
+        _enemy.Anime.SetFloat("MoveState", (int)EnemyBase.AnimationState.Walk);
+        _enemy.transform.forward = _direction;
         //プレイヤーを発見したらチェイスステートに移動する
         var playerDistance = Vector3.Distance(_enemy.transform.position, _player.transform.position);
         if(playerDistance < _enemy.SerchRange)
@@ -42,9 +48,12 @@ public class FreeMove : IStateMachine
 
         //ランダムな位置付近まで移動したら次の移動位置を計算する
         var nextPosDistance = Vector3.Distance(_enemy.transform.position, _direction);
-        if(nextPosDistance < 0.5f)
+        if(nextPosDistance < _enemy.NextPointRange)
         {
             _direction = GetDir();
+            _direction.y = 0;
+            _enemy.DebugLog("NextPoint");
+            _enemy.MarkerCreate(_direction);
         }
     }
 
@@ -54,7 +63,7 @@ public class FreeMove : IStateMachine
     /// <returns>移動方向</returns>
     private Vector3 GetDir()
     {
-        var random = Random.Range(0, 361);
+        var random = Random.Range(0, 361) * Mathf.Deg2Rad   ;
         var dir = new Vector3
             (Mathf.Sin(random) * _enemy.MoveRange + _enemy.transform.position.x,  //X座標の位置を計算
             _enemy.transform.position.y, 　　　　　　　　　　　　　　　　　　　　 //Y座標は変えないのでそのまま

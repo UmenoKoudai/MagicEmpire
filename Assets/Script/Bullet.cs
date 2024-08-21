@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -10,6 +11,7 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         var rb = GetComponent<Rigidbody>();
+        transform.forward = Direction;
         rb.AddForce(Direction * _speed, ForceMode.Impulse);
     }
 

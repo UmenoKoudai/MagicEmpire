@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 /// <summary>
 /// 通常の移動ステート
 /// </summary>
