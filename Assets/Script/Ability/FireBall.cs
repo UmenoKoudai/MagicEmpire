@@ -3,10 +3,10 @@ using UnityEngine;
 public class FireBall : MonoBehaviour, IAbility
 {
 
-    public void Ability(Transform muzzle, Player plyaer)
+    public void Ability(Player player)
     {
-
-        var magic = (GameObject)Resources.Load("");
-        Instantiate(magic, muzzle.position, Quaternion.identity);
+        player.Anim.Play("Attack1");
+        var magic = (GameObject)Resources.Load("FireBall");
+        Instantiate(magic, player.MuzzleRight.position, Quaternion.identity);
     }
 }

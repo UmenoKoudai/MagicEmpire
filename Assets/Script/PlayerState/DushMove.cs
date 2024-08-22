@@ -52,5 +52,23 @@ public class DushMove : IStateMachine
         {
             Exit();
         }
+
+        //押したボタンによって魔法を使用する
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Left]);
+        }
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Right]);
+        }
+        if (Input.GetKeyDown(KeyCode.F3))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Up]);
+        }
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Down]);
+        }
     }
 }

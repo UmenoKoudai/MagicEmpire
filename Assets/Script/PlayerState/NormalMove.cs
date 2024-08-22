@@ -30,10 +30,10 @@ public class NormalMove : IStateMachine
 
     public void FixedUpdate()
     {
-        var dir  = new Vector3(_h, 0, _v);
+        var dir = new Vector3(_h, 0, _v);
         dir = Camera.main.transform.TransformDirection(dir);
         dir.y = 0;
-        if(_h != 0 || _v != 0)
+        if (_h != 0 || _v != 0)
         {
             _player.transform.forward = dir;
         }
@@ -47,27 +47,28 @@ public class NormalMove : IStateMachine
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
 
         //左シフト押したらダッシュ移動に以降
-        if(Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             _state = (int)Player.MoveState.Dush;
             Exit();
         }
 
-        //下仮で弾を撃つ仕組み
-        if(Input.GetButton("Fire1"))
+        //押したボタンによって魔法を使用する
+        if (Input.GetKeyDown(KeyCode.F1))
         {
-            _timer += Time.deltaTime;
-            if (_player.BulletInterval < _timer)
-            {
-                _player.Shoot();
-                _player.Anim.SetBool("Attack1", true);
-                _timer = 0;
-            }
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Left]);
         }
-        else
+        if (Input.GetKeyDown(KeyCode.F2))
         {
-            _player.Anim.SetBool("Attack1", false);
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Right]);
         }
-        //
+        if (Input.GetKeyDown(KeyCode.F3))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Up]);
+        }
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Down]);
+        }
     }
 }
