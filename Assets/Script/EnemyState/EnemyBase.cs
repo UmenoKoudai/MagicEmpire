@@ -85,7 +85,6 @@ public class EnemyBase : MonoBehaviour
     public void ManualUpdate()
     {
         _currentState?.Update();
-        Debug.Log(_currentState?.ToString());
     }
 
     public void ManualFixedUpdate()

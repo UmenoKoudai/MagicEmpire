@@ -8,20 +8,24 @@ public class Player : MonoBehaviour
     [SerializeField, Tooltip("")]
     private float _speed;
     public float Speed => _speed;
-
-    [Header("エフェクトの出現場所")]
-    [SerializeField, Tooltip("右手の発射場所")]
-    private Transform _muzzleRight;
-    public Transform MuzzleRight => _muzzleRight;
-    [SerializeField, Tooltip("左手の発射場所")]
-    private Transform _muzzleLeft;
-    public Transform MuzzleLeft => _muzzleLeft;
-    [SerializeField, Tooltip("プレイヤーの中心")]
-    private Transform _muzzleCenter;
-    public Transform MuzleCenter => _muzzleCenter;
-    [SerializeField, Tooltip("弾を発射する間隔")]
-    private float _bulletInterval;
-    public float BulletInterval => _bulletInterval;
+    [SerializeField, Tooltip("コンボが途切れる時間")]
+    private float _comboInterval;
+    public float ComboInterval => _comboInterval;
+    #region
+    //[Header("エフェクトの出現場所")]
+    //[SerializeField, Tooltip("右手の発射場所")]
+    //private Transform _muzzleRight;
+    //public Transform MuzzleRight => _muzzleRight;
+    //[SerializeField, Tooltip("左手の発射場所")]
+    //private Transform _muzzleLeft;
+    //public Transform MuzzleLeft => _muzzleLeft;
+    //[SerializeField, Tooltip("プレイヤーの中心")]
+    //private Transform _muzzleCenter;
+    //public Transform MuzleCenter => _muzzleCenter;
+    //[SerializeField, Tooltip("弾を発射する間隔")]
+    //private float _bulletInterval;
+    //public float BulletInterval => _bulletInterval;
+    #endregion
 
     [Header("カメラに関する設定")]
     [SerializeField, Tooltip("プレイヤーカメラ")]
@@ -44,18 +48,18 @@ public class Player : MonoBehaviour
 
 
     public Rigidbody Rb { get; set; }
-    public Animator Anim {  get; set; }
+    public Animator Anim { get; set; }
     public CinemachineTransposer Transposer { get; set; }
     public CinemachineComposer Composer { get; set; }
 
-    IStateMachine _currentState;
-    IStateMachine[] _states = new IStateMachine[(int)MoveState.Max];
+    private IStateMachine _currentState;
+    private IStateMachine[] _states = new IStateMachine[(int)MoveState.Max];
 
     private MoveState _nowState = MoveState.Normal;
 
     public MoveState State
     {
-        set 
+        set
         {
             if (_nowState == value) return;
             _nowState = value;
@@ -64,6 +68,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    #region
     private IAbility[] _attackButton = new IAbility[(int)ButtonNumber.Max];
     public IAbility[] AttackButton { get => _attackButton; set => _attackButton = value; }
 
@@ -78,11 +83,37 @@ public class Player : MonoBehaviour
 
         Max,
     }
+    #endregion
 
     public enum MoveState
     {
         Normal,
         Dush,
+
+        Max,
+    }
+
+    private IStateMachine[] _attackState = new IStateMachine[(int)AttackState.Max];
+    private IStateMachine _currentAttack;
+
+    private AttackState _nowAttack = AttackState.Idol;
+    public AttackState Attack
+    {
+        set
+        {
+            if(_nowAttack == value) return;
+            _nowAttack = value;
+            _currentAttack = _attackState[(int)_nowAttack];
+            _currentAttack.Enter();
+        }
+    }
+
+    public enum AttackState
+    {
+        Idol,
+        Attack1,
+        Attack2,
+        Attack3,
 
         Max,
     }
@@ -93,23 +124,29 @@ public class Player : MonoBehaviour
         Anim = GetComponent<Animator>();
         _states[(int)MoveState.Normal] = new NormalMove(this);
         _states[(int)MoveState.Dush] = new DushMove(this);
+        _attackState[(int)AttackState.Idol] = new Idol(this);
+        _attackState[(int)AttackState.Attack1] = new Attack1(this);
+        _attackState[(int)AttackState.Attack2] = new Attack2(this);
+        _attackState[(int)AttackState.Attack3] = new Attack3(this);
         _currentState = _states[(int)_nowState];
+        _currentAttack = _attackState[(int)_nowAttack];
         Transposer = _playerCamera.GetCinemachineComponent<CinemachineTransposer>();
         Composer = _playerCamera.GetCinemachineComponent<CinemachineComposer>();
-        _attackButton[(int)ButtonNumber.Left] = new FireBall();
-        _attackButton[(int)ButtonNumber.Right] = new ThunderBall();
-        _attackButton[(int)ButtonNumber.Up] = new Heal();
-        _attackButton[(int)ButtonNumber.Down] = new WindArrow();
+        _currentAttack.Enter();
+
     }
 
     void Update()
     {
         _currentState.Update();
+        _currentAttack.Update();
+        Debug.Log(_currentAttack);
     }
 
     private void FixedUpdate()
     {
         _currentState.FixedUpdate();
+        _currentAttack.FixedUpdate();
     }
 
     /// <summary>
@@ -128,5 +165,10 @@ public class Player : MonoBehaviour
     public void StateChange(MoveState value)
     {
         State = value;
+    }
+
+    public void NextAttack(AttackState value) 
+    {
+        Attack = value;
     }
 }
