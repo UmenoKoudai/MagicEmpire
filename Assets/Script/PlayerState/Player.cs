@@ -1,9 +1,32 @@
 using Cinemachine;
-using System.Xml.Serialization;
+using DG.Tweening;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IPose, IHit
 {
+    [SerializeField, Tooltip("プレイヤーのHP")]
+    private int _hp;
+    public int HP
+    {
+        set
+        {
+            _hp = value;
+            _hpSlider.fillAmount = 1 / _hp;
+        }
+    }
+
+    [SerializeField, Tooltip("攻撃を受けた時のエフェクト")]
+    private GameObject _hitEffect;
+
+    [SerializeField, Tooltip("HPを表示するImage")]
+    private Image _hpSlider;
+
+    [SerializeField]
+    private int _attack;
+    public int Attack => _attack;
+
     [Header("キャラの動きに関する設定")]
     [SerializeField, Tooltip("")]
     private float _speed;
@@ -11,21 +34,13 @@ public class Player : MonoBehaviour
     [SerializeField, Tooltip("コンボが途切れる時間")]
     private float _comboInterval;
     public float ComboInterval => _comboInterval;
-    #region
-    //[Header("エフェクトの出現場所")]
-    //[SerializeField, Tooltip("右手の発射場所")]
-    //private Transform _muzzleRight;
-    //public Transform MuzzleRight => _muzzleRight;
-    //[SerializeField, Tooltip("左手の発射場所")]
-    //private Transform _muzzleLeft;
-    //public Transform MuzzleLeft => _muzzleLeft;
-    //[SerializeField, Tooltip("プレイヤーの中心")]
-    //private Transform _muzzleCenter;
-    //public Transform MuzleCenter => _muzzleCenter;
-    //[SerializeField, Tooltip("弾を発射する間隔")]
-    //private float _bulletInterval;
-    //public float BulletInterval => _bulletInterval;
-    #endregion
+    [SerializeField]
+    private float _hitStopTimer;
+
+    [Header("攻撃エフェクト")]
+    [SerializeField]
+    private ParticleSystem[] _slashEffect;
+    public ParticleSystem[] SlashEffect => _slashEffect;
 
     [Header("カメラに関する設定")]
     [SerializeField, Tooltip("プレイヤーカメラ")]
@@ -46,12 +61,18 @@ public class Player : MonoBehaviour
     private ParticleSystem _dushEffect;
     public ParticleSystem DushEffect => _dushEffect;
 
-
     public Rigidbody Rb { get; set; }
     public Animator Anim { get; set; }
     public CinemachineTransposer Transposer { get; set; }
     public CinemachineComposer Composer { get; set; }
 
+    private List<EnemyBase> _inRangeEnemy;
+    public List<EnemyBase> InRangeEnemy => _inRangeEnemy;
+
+    private float _defaultSpeed;
+    private float _defaultAnimSpeed;
+
+    #region 移動のステート
     private IStateMachine _currentState;
     private IStateMachine[] _states = new IStateMachine[(int)MoveState.Max];
 
@@ -63,41 +84,28 @@ public class Player : MonoBehaviour
         {
             if (_nowState == value) return;
             _nowState = value;
+            if (_nowState == MoveState.Stop) return;
             _currentState = _states[(int)_nowState];
             _currentState.Enter();
         }
     }
 
-    #region
-    private IAbility[] _attackButton = new IAbility[(int)ButtonNumber.Max];
-    public IAbility[] AttackButton { get => _attackButton; set => _attackButton = value; }
-
-    public IAbility SelectMagic { get; set; }
-
-    public enum ButtonNumber
-    {
-        Left,
-        Right,
-        Up,
-        Down,
-
-        Max,
-    }
-    #endregion
-
     public enum MoveState
     {
+        Stop,
         Normal,
         Dush,
 
         Max,
     }
+    #endregion
 
+    #region 攻撃のステート
     private IStateMachine[] _attackState = new IStateMachine[(int)AttackState.Max];
     private IStateMachine _currentAttack;
 
     private AttackState _nowAttack = AttackState.Idol;
-    public AttackState Attack
+    public AttackState NowAttack
     {
         set
         {
@@ -117,9 +125,11 @@ public class Player : MonoBehaviour
 
         Max,
     }
+    #endregion
 
     void Start()
     {
+        _inRangeEnemy = new List<EnemyBase>();
         Rb = GetComponent<Rigidbody>();
         Anim = GetComponent<Animator>();
         _states[(int)MoveState.Normal] = new NormalMove(this);
@@ -133,20 +143,22 @@ public class Player : MonoBehaviour
         Transposer = _playerCamera.GetCinemachineComponent<CinemachineTransposer>();
         Composer = _playerCamera.GetCinemachineComponent<CinemachineComposer>();
         _currentAttack.Enter();
-
+        Anim.speed = 1.5f;
+        _hpSlider.fillAmount = 1;
     }
 
     void Update()
-    {
-        _currentState.Update();
+    { 
         _currentAttack.Update();
-        Debug.Log(_currentAttack);
+        if (_nowState == MoveState.Stop) return;
+        _currentState.Update();
     }
 
     private void FixedUpdate()
     {
-        _currentState.FixedUpdate();
         _currentAttack.FixedUpdate();
+        if (_nowState == MoveState.Stop) return;
+        _currentState.FixedUpdate();
     }
 
     /// <summary>
@@ -159,7 +171,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// ステートを変える関数
+    /// 移動のステートを変える関数
     /// </summary>
     /// <param name="value">変更先のステート</param>
     public void StateChange(MoveState value)
@@ -167,8 +179,73 @@ public class Player : MonoBehaviour
         State = value;
     }
 
+    /// <summary>
+    /// 攻撃のステートを変える関数
+    /// </summary>
+    /// <param name="value"></param>
     public void NextAttack(AttackState value) 
     {
-        Attack = value;
+        NowAttack = value;
+    }
+
+    public void Step(Vector3 direction)
+    {
+        direction = direction.normalized;
+        Anim.SetTrigger("StepTrigger");
+        Anim.SetFloat("StepX", direction.x);
+        Anim.SetFloat("StepY", direction.z);
+        Rb.AddForce(direction * 10, ForceMode.Impulse);
+        StateChange(MoveState.Normal);
+    }
+
+    public void Pose()
+    {
+        _defaultSpeed = _speed;
+        _defaultAnimSpeed = Anim.speed;
+        _speed = 0;
+        Anim.speed = 0;
+    }
+
+    public void Resume()
+    {
+        _speed = _defaultSpeed;
+        Anim.speed = _defaultAnimSpeed;
+    }
+
+    public void HitStop()
+    {
+        var main = _slashEffect[(int)_nowAttack - 1].main;
+         var defaultSpeed = Anim.speed;
+        var defaultParticleSpeed = main.simulationSpeed;
+        Anim.speed = 0f;
+        main.simulationSpeed = 0f;
+
+        DOTween.Sequence().SetDelay(_hitStopTimer).AppendCallback(() =>
+        {
+            Anim.speed = defaultSpeed;
+            main.simulationSpeed = defaultParticleSpeed;
+        });
+    }
+
+    public void Hit(int damage)
+    {
+        _hp -= damage;
+        Instantiate(_hitEffect, transform.position, Quaternion.identity);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.TryGetComponent(out EnemyBase enemy))
+        {
+            _inRangeEnemy.Add(enemy);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.TryGetComponent(out EnemyBase enemy))
+        {
+            _inRangeEnemy.Remove(enemy);
+        }
     }
 }

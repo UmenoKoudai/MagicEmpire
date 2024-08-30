@@ -1,10 +1,36 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// エネミーの基底クラス
 /// </summary>
-public class EnemyBase : MonoBehaviour
+public class EnemyBase : MonoBehaviour, IHit
 {
+
+    [SerializeField, Tooltip("エネミーのHP")]
+    private int _hp;
+    public int HP 
+    { 
+        get => _hp; 
+        set
+        {
+            _hp = value;
+            _hpSlider.value = _hp;
+            if (_hp < 0)
+            {
+                StateChange(EnemyState.EnemyDie);
+            }
+        }
+    }
+
+    [SerializeField]
+    private Slider _hpSlider;
+
+    [SerializeField, Tooltip("エネミーの攻撃力")]
+    private int _attack;
+    public int Attack => _attack;
+
     [SerializeField, Tooltip("エネミーの移動速度")]
     private float _speed;
     public float Speed => _speed;
@@ -25,10 +51,31 @@ public class EnemyBase : MonoBehaviour
     private float _nextPointRange;
     public float NextPointRange => _nextPointRange;
 
+    [SerializeField]
+    private float _hitStopTimer;
+
     [Header("デバック用")]
     [SerializeField]
     private GameObject _marker;
+
+    private Player _player;
     
+
+    public enum AnimationState
+    {
+        Walk = 1,
+        Idle,
+        Run,
+        Attack,
+        Hit,
+    }
+
+    #region エネミーの状態管理ステート
+    private IStateMachine[] _states = new IStateMachine[(int)EnemyState.Max];
+    private IStateMachine _currentState;
+
+    public Rigidbody Rb { get; set; }
+    public Animator Anime { get; set; }
 
     public enum EnemyState
     {
@@ -37,23 +84,11 @@ public class EnemyBase : MonoBehaviour
         DiscoveryMove,
         ChaseMove,
         AttackMove,
+        Enemyhit,
+        EnemyDie,
 
         Max,
     }
-
-    public enum AnimationState
-    {
-        Walk = 1,
-        Idle,
-        Run,
-        Attack,
-    }
-
-    private IStateMachine[] _states = new IStateMachine[(int)EnemyState.Max];
-    private IStateMachine _currentState;
-
-    public Rigidbody Rb { get; set; }
-    public Animator Anime { get; set; }
 
     private EnemyState _state = EnemyState.None;
     public EnemyState State
@@ -66,6 +101,7 @@ public class EnemyBase : MonoBehaviour
             _currentState?.Enter();
         }
     }
+    #endregion
 
     /// <summary>
     /// 初期化関数
@@ -74,17 +110,22 @@ public class EnemyBase : MonoBehaviour
     {
         Rb = GetComponent<Rigidbody>();
         Anime = GetComponent<Animator>();
-        var player = FindObjectOfType<Player>();
-        _states[(int)EnemyState.FreeMove] = new FreeMove(this, player);
-        _states[(int)EnemyState.DiscoveryMove] = new DiscoveryMove(this, player);
-        _states[(int)EnemyState.ChaseMove] = new ChaseMove(this, player);
-        _states[(int)EnemyState.AttackMove] = new AttackMove(this, player);
+        _player = FindObjectOfType<Player>();
+        _states[(int)EnemyState.FreeMove] = new FreeMove(this, _player);
+        _states[(int)EnemyState.DiscoveryMove] = new DiscoveryMove(this, _player);
+        _states[(int)EnemyState.ChaseMove] = new ChaseMove(this, _player);
+        _states[(int)EnemyState.AttackMove] = new AttackMove(this, _player);
+        _states[(int)EnemyState.Enemyhit] = new EnemyHit(this, _player, _hitStopTimer);
+        _states[(int)EnemyState.EnemyDie] = new EnemyDie(this);
         State = EnemyState.FreeMove;
+        _hpSlider.maxValue = _hp;
+        _hpSlider.value = _hp;
     }
 
     public void ManualUpdate()
     {
         _currentState?.Update();
+        Debug.Log($"{_currentState}");
     }
 
     public void ManualFixedUpdate()
@@ -122,13 +163,40 @@ public class EnemyBase : MonoBehaviour
         return true;
     }
 
-    public virtual void DebugLog(string log)
+    public void HitStop()
     {
-        Debug.Log(log);
+        //Rb.velocity = Vector3.zero;
+        //_defaultAnimeSpeed = Anime.speed;
+        //Anime.speed = 0;
+        //var dir = transform.position - _player.transform.position;
+        //DOTween.Sequence().SetDelay(_hitStopTimer).AppendCallback(() =>
+        //{
+        //    Anime.speed = _defaultAnimeSpeed; 
+        //    Rb.AddForce((dir.normalized) * 100f, ForceMode.Impulse);
+        //});
+        //Debug.Log("攻撃された");
     }
 
-    public virtual void MarkerCreate(Vector3 point)
+    /// <summary>
+    /// 攻撃を受けた時に呼ばれるここでHPを減らす
+    /// </summary>
+    /// <param name="damage"></param>
+    public void Hit(int damage)
     {
-        Instantiate(_marker, point, Quaternion.identity);
+        if (_state == EnemyState.EnemyDie) return;
+        HP -= damage;
+        var effect = Resources.Load("HitEffect_A");
+        Instantiate(effect, transform.position, Quaternion.identity);
+        StateChange(EnemyState.Enemyhit);
+    }
+
+    public void EnemyDestroy()
+    {
+        Destroy(gameObject);
+    }
+
+    public void Log(string message)
+    {
+        Debug.Log(message);
     }
 }

@@ -18,7 +18,6 @@ public class FreeMove : IStateMachine
     {
         //Å‰‚ÉˆÚ“®‚·‚éˆÊ’u‚ğŒvZ‚·‚é
         _direction = GetDir();
-        _enemy.MarkerCreate(_direction);
         _direction.y = 0;
     }
 
@@ -52,8 +51,6 @@ public class FreeMove : IStateMachine
         {
             _direction = GetDir();
             _direction.y = 0;
-            _enemy.DebugLog("NextPoint");
-            _enemy.MarkerCreate(_direction);
         }
     }
 

@@ -6,9 +6,9 @@ using UnityEngine;
 public class NormalMove : IStateMachine
 {
     private Player _player;
+    private Vector3 _direction;
     private float _h;
     private float _v;
-    private float _timer;
     private int _state;
 
     public NormalMove(Player player)
@@ -38,6 +38,7 @@ public class NormalMove : IStateMachine
             _player.transform.forward = dir;
         }
         _player.Rb.velocity = dir.normalized * _player.Speed + _player.Rb.velocity.y * Vector3.up;
+        _direction = dir;
     }
 
     public void Update()
@@ -53,22 +54,11 @@ public class NormalMove : IStateMachine
             Exit();
         }
 
-        //押したボタンによって魔法を使用する
-        if (Input.GetKeyDown(KeyCode.F1))
+        if(Input.GetButtonDown("Fire2"))
         {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Left]);
-        }
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Right]);
-        }
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Up]);
-        }
-        if (Input.GetKeyDown(KeyCode.F4))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Down]);
+            _state = (int)Player.MoveState.Stop;
+            _player.Step(_direction);
+            Exit();
         }
     }
 }

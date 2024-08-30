@@ -21,12 +21,17 @@ public class Attack2 : IStateMachine, ICombo
 
     public void Enter()
     {
-        _player.Anim.SetInteger("AttackIndex", (int)Player.AttackState.Attack1);
+        _player.Anim.SetTrigger("InplaceAttack");
+        _player.StateChange(Player.MoveState.Stop);
+        _player.SlashEffect[1].gameObject.SetActive(true);
+        _timer = 0;
     }
 
     public void Exit()
     {
         _player.NextAttack((Player.AttackState)_stateIndex);
+        _player.StateChange(Player.MoveState.Normal);
+        _player.SlashEffect[1].gameObject.SetActive(false);
     }
 
     public void FixedUpdate()

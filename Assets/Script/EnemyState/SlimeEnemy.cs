@@ -23,6 +23,11 @@ public class SlimeEnemy : EnemyBase
         ManualFixedUpdate();
     }
 
+    //public override void Init()
+    //{
+        
+    //}
+
     private void OnDisable()
     {
         DOTween.KillAll();

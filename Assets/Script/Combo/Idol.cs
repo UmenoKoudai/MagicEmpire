@@ -18,7 +18,8 @@ public class Idol : IStateMachine, ICombo
 
     public void Enter()
     {
-        _player.Anim.SetInteger("AttackIndex", (int)Player.AttackState.Idol);
+        _player.Anim.SetInteger("AttackIndex", 0);
+        _timer = 0;
     }
 
     public void Exit()

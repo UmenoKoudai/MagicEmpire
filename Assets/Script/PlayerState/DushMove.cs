@@ -46,29 +46,12 @@ public class DushMove : IStateMachine
     {
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
+        _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
 
         //左シフトから手を離したら通常移動に移行する
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             Exit();
-        }
-
-        //押したボタンによって魔法を使用する
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Left]);
-        }
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Right]);
-        }
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Up]);
-        }
-        if (Input.GetKeyDown(KeyCode.F4))
-        {
-            _player.MagicPlay(_player.AttackButton[(int)Player.ButtonNumber.Down]);
         }
     }
 }
