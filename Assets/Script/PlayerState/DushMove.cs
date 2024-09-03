@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// ダッシュの移動ステート
 /// </summary>
-public class DushMove : IStateMachine
+public class DushMove : IStateMachine, IInputAction
 {
     private Player _player;
     private float _h;
@@ -15,11 +15,19 @@ public class DushMove : IStateMachine
         _player = player;
     }
 
+    public void ActionPressed()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void ActionReleased()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public void Enter()
     {
         _player.DushEffect.gameObject.SetActive(true);
-        _player.Transposer.m_FollowOffset.y = _player.DushPositionY;
-        _player.Composer.m_TrackedObjectOffset.y = _player.DushRotationY;
     }
 
     public void Exit()
@@ -48,10 +56,13 @@ public class DushMove : IStateMachine
         _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
 
-        //左シフトから手を離したら通常移動に移行する
-        if (Input.GetKeyUp(KeyCode.LeftShift))
+        if (!_player.IsController)
         {
-            Exit();
+            //左シフトから手を離したら通常移動に移行する
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                Exit();
+            }
         }
     }
 }

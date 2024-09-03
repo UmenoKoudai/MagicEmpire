@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,8 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyBase : MonoBehaviour, IHit
 {
+    [SerializeField]
+    private EnemyType _type;
 
     [SerializeField, Tooltip("エネミーのHP")]
     private int _hp;
@@ -17,15 +20,20 @@ public class EnemyBase : MonoBehaviour, IHit
         {
             _hp = value;
             _hpSlider.value = _hp;
-            if (_hp < 0)
+            if (_hp <= 0)
             {
                 StateChange(EnemyState.EnemyDie);
+                OnEnemyDestroy?.Invoke(_type);
             }
         }
     }
 
     [SerializeField]
     private Slider _hpSlider;
+
+    [SerializeField]
+    private ParticleSystem _hitEffect;
+    public ParticleSystem HitEffect => _hitEffect;
 
     [SerializeField, Tooltip("エネミーの攻撃力")]
     private int _attack;
@@ -52,15 +60,18 @@ public class EnemyBase : MonoBehaviour, IHit
     public float NextPointRange => _nextPointRange;
 
     [SerializeField]
+    private Renderer _renderer;
+    public Renderer EnemyRender => _renderer;
+
+    [SerializeField]
     private float _hitStopTimer;
+    public float HitStopTimer => _hitStopTimer;
 
     [Header("デバック用")]
     [SerializeField]
     private GameObject _marker;
 
-    private Player _player;
-    
-
+    public event Action<EnemyType> OnEnemyDestroy;
     public enum AnimationState
     {
         Walk = 1,
@@ -69,10 +80,16 @@ public class EnemyBase : MonoBehaviour, IHit
         Attack,
         Hit,
     }
+    public enum EnemyType
+    {
+        Slime,
+    }
 
     #region エネミーの状態管理ステート
     private IStateMachine[] _states = new IStateMachine[(int)EnemyState.Max];
+    public IStateMachine[] States { get => _states; set => _states = value; }
     private IStateMachine _currentState;
+    public IStateMachine CurrentState => _currentState;
 
     public Rigidbody Rb { get; set; }
     public Animator Anime { get; set; }
@@ -93,8 +110,10 @@ public class EnemyBase : MonoBehaviour, IHit
     private EnemyState _state = EnemyState.None;
     public EnemyState State
     {
+        get => _state;
         set
         {
+            Debug.Log($"ChangeState:{value}");
             if (_state == value) return;
             _state = value;
             _currentState = _states[(int)_state];
@@ -108,16 +127,9 @@ public class EnemyBase : MonoBehaviour, IHit
     /// </summary>
     public virtual void Init()
     {
+        Debug.Log("Virtual");
         Rb = GetComponent<Rigidbody>();
         Anime = GetComponent<Animator>();
-        _player = FindObjectOfType<Player>();
-        _states[(int)EnemyState.FreeMove] = new FreeMove(this, _player);
-        _states[(int)EnemyState.DiscoveryMove] = new DiscoveryMove(this, _player);
-        _states[(int)EnemyState.ChaseMove] = new ChaseMove(this, _player);
-        _states[(int)EnemyState.AttackMove] = new AttackMove(this, _player);
-        _states[(int)EnemyState.Enemyhit] = new EnemyHit(this, _player, _hitStopTimer);
-        _states[(int)EnemyState.EnemyDie] = new EnemyDie(this);
-        State = EnemyState.FreeMove;
         _hpSlider.maxValue = _hp;
         _hpSlider.value = _hp;
     }
@@ -184,10 +196,9 @@ public class EnemyBase : MonoBehaviour, IHit
     public void Hit(int damage)
     {
         if (_state == EnemyState.EnemyDie) return;
-        HP -= damage;
-        var effect = Resources.Load("HitEffect_A");
-        Instantiate(effect, transform.position, Quaternion.identity);
         StateChange(EnemyState.Enemyhit);
+        HP -= damage;
+        _hitEffect.Play();
     }
 
     public void EnemyDestroy()

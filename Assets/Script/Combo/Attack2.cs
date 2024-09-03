@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Attack2 : IStateMachine, ICombo
 {
@@ -13,17 +12,23 @@ public class Attack2 : IStateMachine, ICombo
         _player = player;
     }
 
-    public void Attack()
+    public void StrongAttack()
     {
-        _stateIndex = (int)Player.AttackState.Attack2;
+        throw new System.NotImplementedException();
+    }
+
+    public void WeakAttack()
+    {
+        _stateIndex = (int)Player.AttackState.Attack3;
         Exit();
     }
+
 
     public void Enter()
     {
         _player.Anim.SetTrigger("InplaceAttack");
         _player.StateChange(Player.MoveState.Stop);
-        _player.SlashEffect[1].gameObject.SetActive(true);
+        _player.SlashEffect[1].Play();
         _timer = 0;
     }
 
@@ -31,7 +36,11 @@ public class Attack2 : IStateMachine, ICombo
     {
         _player.NextAttack((Player.AttackState)_stateIndex);
         _player.StateChange(Player.MoveState.Normal);
-        _player.SlashEffect[1].gameObject.SetActive(false);
+        if (_player.InRangeEnemy.Count <= 0) return;
+        foreach (var enemy in _player.InRangeEnemy)
+        {
+            enemy.Hit(_player.Attack);
+        }
     }
 
     public void FixedUpdate()
@@ -41,11 +50,19 @@ public class Attack2 : IStateMachine, ICombo
     public void Update()
     {
         _timer += Time.deltaTime;
-        if(Input.GetButtonDown("Fire1"))
+
+        //コントローラー仕様の場合は呼ばれない
+        if (!_player.IsController)
         {
-            _stateIndex = (int)Player.AttackState.Attack3;
-            Exit();
+            var currentMouse = Mouse.current;
+            if (currentMouse.leftButton.wasPressedThisFrame)
+            {
+                _stateIndex = (int)Player.AttackState.Attack3;
+                Exit();
+            }
         }
+
+        //時間がたったらコンボが途切れる
         if(_timer > _player.ComboInterval)
         {
             _stateIndex = (int)Player.AttackState.Idol;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Idol : IStateMachine, ICombo
 {
@@ -11,9 +12,15 @@ public class Idol : IStateMachine, ICombo
         _player = player;
     }
 
-    public void Attack()
+    public void StrongAttack()
     {
+        throw new System.NotImplementedException();
+    }
 
+    public void WeakAttack()
+    {
+        _stateIndex = (int)Player.AttackState.Attack1;
+        Exit();
     }
 
     public void Enter()
@@ -33,17 +40,14 @@ public class Idol : IStateMachine, ICombo
 
     public void Update()
     {
-        //_timer += Time.deltaTime;
-        if(_timer > _player.ComboInterval)
+        if (!_player.IsController)
         {
-            _stateIndex = (int)Player.AttackState.Idol;
-            Exit();
-        }
-
-        if(Input.GetButtonDown("Fire1"))
-        {
-            _stateIndex = (int)Player.AttackState.Attack1;
-            Exit();
+            var currentMouse = Mouse.current;
+            if (currentMouse.leftButton.wasPressedThisFrame)
+            {
+                _stateIndex = (int)Player.AttackState.Attack1;
+                Exit();
+            }
         }
     }
 }

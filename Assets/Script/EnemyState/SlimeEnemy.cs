@@ -1,5 +1,6 @@
 
 using DG.Tweening;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 /// <summary>
 /// スライムのエネミー
@@ -23,13 +24,17 @@ public class SlimeEnemy : EnemyBase
         ManualFixedUpdate();
     }
 
-    //public override void Init()
-    //{
-        
-    //}
-
-    private void OnDisable()
+    public override void Init()
     {
-        DOTween.KillAll();
+        var _player = FindObjectOfType<Player>();
+        States[(int)EnemyState.FreeMove] = new FreeMove(this, _player);
+        States[(int)EnemyState.DiscoveryMove] = new DiscoveryMove(this, _player);
+        States[(int)EnemyState.ChaseMove] = new ChaseMove(this, _player);
+        States[(int)EnemyState.AttackMove] = new AttackMove(this, _player);
+        States[(int)EnemyState.Enemyhit] = new EnemyHit(this, _player, HitStopTimer);
+        States[(int)EnemyState.EnemyDie] = new EnemyDie(this);
+        State = EnemyState.FreeMove;
+        CurrentState.Enter();
+        base.Init();
     }
 }

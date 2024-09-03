@@ -1,4 +1,5 @@
 public interface ICombo
 {
-    public abstract void Attack();
+    public abstract void StrongAttack();
+    public abstract void WeakAttack();
 }

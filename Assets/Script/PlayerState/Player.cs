@@ -2,10 +2,17 @@ using Cinemachine;
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour, IPose, IHit
 {
+    #region シリアライズ
+    [SerializeField]
+    private bool _isController;
+    public bool IsController => _isController;
+
+    [Header("キャラの動きに関する設定")]
     [SerializeField, Tooltip("プレイヤーのHP")]
     private int _hp;
     public int HP
@@ -23,54 +30,61 @@ public class Player : MonoBehaviour, IPose, IHit
     [SerializeField, Tooltip("HPを表示するImage")]
     private Image _hpSlider;
 
-    [SerializeField]
+    [SerializeField, Tooltip("攻撃力")]
     private int _attack;
     public int Attack => _attack;
 
-    [Header("キャラの動きに関する設定")]
-    [SerializeField, Tooltip("")]
+    [SerializeField, Tooltip("移動速度")]
     private float _speed;
     public float Speed => _speed;
+
     [SerializeField, Tooltip("コンボが途切れる時間")]
     private float _comboInterval;
     public float ComboInterval => _comboInterval;
     [SerializeField]
     private float _hitStopTimer;
 
-    [Header("攻撃エフェクト")]
-    [SerializeField]
+    [Header("エフェクト")]
+    [SerializeField, Tooltip("攻撃エフェクト")]
     private ParticleSystem[] _slashEffect;
     public ParticleSystem[] SlashEffect => _slashEffect;
 
-    [Header("カメラに関する設定")]
-    [SerializeField, Tooltip("プレイヤーカメラ")]
-    private CinemachineVirtualCamera _playerCamera;
-    [SerializeField, Tooltip("デフォルトのY座標")]
-    private float _defaultPositionY = 5f;
-    public float DefaultPositionY => _defaultPositionY;
-    [SerializeField, Tooltip("デフォルトのY角度")]
-    private float _defaultRotationY = 2f;
-    public float DefaultRotationY => _defaultRotationY;
-    [SerializeField, Tooltip("ダッシュ時のY座標")]
-    private float _dushPositionY = 4f;
-    public float DushPositionY => _dushPositionY;
-    [SerializeField, Tooltip("ダッシュ時のY角度")]
-    private float _dushRotationY = 4f;
-    public float DushRotationY => _dushRotationY;
     [SerializeField, Tooltip("ダッシュのエフェクト")]
     private ParticleSystem _dushEffect;
     public ParticleSystem DushEffect => _dushEffect;
 
+    #endregion
+
+    #region 削除予定
+    //[Header("カメラに関する設定")]
+    //[SerializeField, Tooltip("プレイヤーカメラ")]
+    //private CinemachineVirtualCamera _playerCamera;
+    //[SerializeField, Tooltip("デフォルトのY座標")]
+    //private float _defaultPositionY = 5f;
+    //public float DefaultPositionY => _defaultPositionY;
+    //[SerializeField, Tooltip("デフォルトのY角度")]
+    //private float _defaultRotationY = 2f;
+    //public float DefaultRotationY => _defaultRotationY;
+    //[SerializeField, Tooltip("ダッシュ時のY座標")]
+    //private float _dushPositionY = 4f;
+    //public float DushPositionY => _dushPositionY;
+    //[SerializeField, Tooltip("ダッシュ時のY角度")]
+    //private float _dushRotationY = 4f;
+    //public float DushRotationY => _dushRotationY;
+    #endregion
+
+    #region　非シリアライズ変数
     public Rigidbody Rb { get; set; }
     public Animator Anim { get; set; }
-    public CinemachineTransposer Transposer { get; set; }
-    public CinemachineComposer Composer { get; set; }
+    public Vector3 MoveVector { get; set; }
+    public Vector2 StepVector { get; set; }
 
     private List<EnemyBase> _inRangeEnemy;
     public List<EnemyBase> InRangeEnemy => _inRangeEnemy;
 
     private float _defaultSpeed;
     private float _defaultAnimSpeed;
+    #endregion
 
     #region 移動のステート
     private IStateMachine _currentState;
@@ -95,6 +109,7 @@ public class Player : MonoBehaviour, IPose, IHit
         Stop,
         Normal,
         Dush,
+        Step,
 
         Max,
     }
@@ -134,14 +149,13 @@ public class Player : MonoBehaviour, IPose, IHit
         Anim = GetComponent<Animator>();
         _states[(int)MoveState.Normal] = new NormalMove(this);
         _states[(int)MoveState.Dush] = new DushMove(this);
+        _states[(int)MoveState.Step] = new StepMove(this);
         _attackState[(int)AttackState.Idol] = new Idol(this);
         _attackState[(int)AttackState.Attack1] = new Attack1(this);
         _attackState[(int)AttackState.Attack2] = new Attack2(this);
         _attackState[(int)AttackState.Attack3] = new Attack3(this);
         _currentState = _states[(int)_nowState];
         _currentAttack = _attackState[(int)_nowAttack];
-        Transposer = _playerCamera.GetCinemachineComponent<CinemachineTransposer>();
-        Composer = _playerCamera.GetCinemachineComponent<CinemachineComposer>();
         _currentAttack.Enter();
         Anim.speed = 1.5f;
         _hpSlider.fillAmount = 1;
@@ -188,16 +202,9 @@ public class Player : MonoBehaviour, IPose, IHit
         NowAttack = value;
     }
 
-    public void Step(Vector3 direction)
-    {
-        direction = direction.normalized;
-        Anim.SetTrigger("StepTrigger");
-        Anim.SetFloat("StepX", direction.x);
-        Anim.SetFloat("StepY", direction.z);
-        Rb.AddForce(direction * 10, ForceMode.Impulse);
-        StateChange(MoveState.Normal);
-    }
-
+    /// <summary>
+    /// 一時停止したときに呼ばれる
+    /// </summary>
     public void Pose()
     {
         _defaultSpeed = _speed;
@@ -206,16 +213,40 @@ public class Player : MonoBehaviour, IPose, IHit
         Anim.speed = 0;
     }
 
+    /// <summary>
+    /// 一時停止を解除したときに呼ばれる
+    /// </summary>
     public void Resume()
     {
         _speed = _defaultSpeed;
         Anim.speed = _defaultAnimSpeed;
     }
 
+    /// <summary>
+    /// エネミーの攻撃が当たった時に少し止める
+    /// </summary>
     public void HitStop()
     {
+        //var main = _slashEffect[(int)_nowAttack - 1].main;
+        // var defaultSpeed = Anim.speed;
+        //var defaultParticleSpeed = main.simulationSpeed;
+        //Anim.speed = 0f;
+        //main.simulationSpeed = 0f;
+
+        //DOTween.Sequence().SetDelay(_hitStopTimer).AppendCallback(() =>
+        //{
+        //    Anim.speed = defaultSpeed;
+        //    main.simulationSpeed = defaultParticleSpeed;
+        //});
+    }
+
+    /// <summary>
+    /// 自分の攻撃が当たった時に少し止める
+    /// </summary>
+    public void AttackStop()
+    {
         var main = _slashEffect[(int)_nowAttack - 1].main;
-         var defaultSpeed = Anim.speed;
+        var defaultSpeed = Anim.speed;
         var defaultParticleSpeed = main.simulationSpeed;
         Anim.speed = 0f;
         main.simulationSpeed = 0f;
@@ -227,12 +258,20 @@ public class Player : MonoBehaviour, IPose, IHit
         });
     }
 
+    /// <summary>
+    /// 攻撃を受けた時に呼ばれる
+    /// </summary>
+    /// <param name="damage">相手の攻撃力</param>
     public void Hit(int damage)
     {
         _hp -= damage;
         Instantiate(_hitEffect, transform.position, Quaternion.identity);
     }
 
+    /// <summary>
+    /// 攻撃範囲にエネミーが入ったらリストに加える
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         if(other.TryGetComponent(out EnemyBase enemy))
@@ -241,11 +280,21 @@ public class Player : MonoBehaviour, IPose, IHit
         }
     }
 
+    /// <summary>
+    /// 敵が攻撃範囲から出たらリストから外す
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerExit(Collider other)
     {
         if(other.TryGetComponent(out EnemyBase enemy))
         {
             _inRangeEnemy.Remove(enemy);
         }
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        MoveVector = context.ReadValue<Vector3>();
+        Debug.Log($"入力された{MoveVector}");
     }
 }
