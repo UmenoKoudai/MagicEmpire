@@ -33,12 +33,39 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Attack",
+                    "name": "StrongAttack",
                     "type": "Button",
                     "id": "33d87606-b849-43db-86fe-b9d7adbe3740",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "WeakAttack",
+                    "type": "Button",
+                    "id": "1345369d-465f-4382-8c50-1a2ce75dc03f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ActionPressed",
+                    "type": "Button",
+                    "id": "15caa031-9c19-4b4d-a15a-9aeff8df2d2a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ActionReleased",
+                    "type": "Button",
+                    "id": "96ae6d09-cee0-4f8d-ab0f-9a76e2f47d5b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=1)",
                     "initialStateCheck": false
                 }
             ],
@@ -265,23 +292,45 @@
                 },
                 {
                     "name": "",
-                    "id": "a32feb5c-97f3-435b-9b37-420c5aabed0d",
-                    "path": "<Gamepad>/buttonWest",
+                    "id": "2a52cf11-f085-473d-9f1a-fbaed327548c",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Attack",
+                    "action": "StrongAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "c94b4dff-8c0b-4a68-9c13-a9e9f1dcf9ae",
-                    "path": "<Gamepad>/buttonNorth",
+                    "id": "28b38b50-f72f-4743-ab04-a5edbb5d8c93",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
-                    "action": "Attack",
+                    "action": "WeakAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "907a512a-2cbd-4622-a1a5-4941a2829001",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ActionPressed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0ae4082d-63ce-4cb3-b574-3129ead587a1",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "ActionReleased",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

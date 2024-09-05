@@ -1,6 +1,7 @@
 using Cinemachine;
 using DG.Tweening;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -296,5 +297,29 @@ public class Player : MonoBehaviour, IPose, IHit
     {
         MoveVector = context.ReadValue<Vector3>();
         Debug.Log($"“ü—Í‚³‚ê‚½{MoveVector}");
+    }
+
+    public void OnActionPressed()
+    {
+        var action = (IInputAction)_currentState;
+        action.ActionPressed();
+    }
+
+    public void OnActionReleased() 
+    {
+        var action = (IInputAction)_currentState;
+        action.ActionReleased();
+    }
+
+    public void OnStrongAttack()
+    {
+        var combo = (ICombo)_currentAttack;
+        combo.StrongAttack();
+    }
+
+    public void OnWeakAttack()
+    {
+        var combo = (ICombo)_currentAttack;
+        combo.WeakAttack();
     }
 }

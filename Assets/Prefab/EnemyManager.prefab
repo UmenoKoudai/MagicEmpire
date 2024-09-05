@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2711357997517154089
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 443436933143408452}
+  - component: {fileID: 3503947309554379089}
+  m_Layer: 0
+  m_Name: EnemyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &443436933143408452
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2711357997517154089}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 192.48138, y: -218.58748, z: 443.18314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3503947309554379089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2711357997517154089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29e9b5caa82d37646bbfaae9786cf11b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sponeEnemy:
+  - {fileID: 0}
+  _quests:
+  - rid: 3091105028692246528
+  _questContans: {fileID: 0}
+  _clearCount: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3091105028692246528
+      type: {class: CountUpQuest, ns: , asm: Assembly-CSharp}
+      data:
+        _type: 0
+        _clearCount: 1
+        _contents: "\u30B9\u30E9\u30A4\u30E0\u30921\u4F53\u5012\u305B"

@@ -17,12 +17,13 @@ public class DushMove : IStateMachine, IInputAction
 
     public void ActionPressed()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("Press無し");
     }
 
     public void ActionReleased()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("ダッシュ終了");
+        Exit();
     }
 
     public void Enter()
