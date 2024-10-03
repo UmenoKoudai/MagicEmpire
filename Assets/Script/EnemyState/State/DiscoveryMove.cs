@@ -26,6 +26,9 @@ public class DiscoveryMove : IStateMachine
         var direction = _player.transform.position - _enemy.transform.position;
         _direction = Quaternion.LookRotation(direction);
         _enemy.Rb.velocity = Vector3.zero;
+        _enemy.Anime.SetBool("IsIdol", true);
+        _enemy.Anime.SetBool("IsWalk", false);
+        _enemy.Anime.SetBool("IsRun", false);
     }
 
     public void Exit()

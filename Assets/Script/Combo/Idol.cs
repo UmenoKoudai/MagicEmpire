@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static Player;
 
 public class Idol : IStateMachine, ICombo
 {
@@ -14,7 +15,8 @@ public class Idol : IStateMachine, ICombo
 
     public void StrongAttack()
     {
-        throw new System.NotImplementedException();
+        _stateIndex = (int)Player.AttackState.StrongAttack1;
+        Exit();
     }
 
     public void WeakAttack()

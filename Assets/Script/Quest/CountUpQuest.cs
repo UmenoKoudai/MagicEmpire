@@ -27,15 +27,15 @@ public class CountUpQuest : IQuest
     /// <returns></returns>
     public bool Judge()
     {
-        if (_clearCount >= _destroyCount) return true;
+        if (_clearCount <= _destroyCount) return true;
         return false;
     }
 
     /// <summary>
     /// Œ‚”j”‚ğ‘‚â‚·
     /// </summary>
-    public void CountUp()
+    public int CountUp()
     {
-        _destroyCount++;
+        return ++_destroyCount;
     }
 }

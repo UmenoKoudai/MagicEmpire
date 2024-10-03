@@ -9,6 +9,15 @@
                     "name": "Move",
                     "type": "Value",
                     "id": "481c307c-ebc7-43d8-b6a9-b1b226cb43cf",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "CameraMove",
+                    "type": "Value",
+                    "id": "9f640c3c-774a-4327-84c6-41e0aadf6fda",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -294,7 +303,7 @@
                     "name": "",
                     "id": "2a52cf11-f085-473d-9f1a-fbaed327548c",
                     "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "StrongAttack",
@@ -303,9 +312,31 @@
                 },
                 {
                     "name": "",
+                    "id": "d94ea469-a34e-4533-9444-89c1ffb75334",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "StrongAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "28b38b50-f72f-4743-ab04-a5edbb5d8c93",
                     "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "WeakAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9e3cdd1d-7a71-4b3d-afe0-4f79a578d8c1",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "WeakAttack",
@@ -316,7 +347,7 @@
                     "name": "",
                     "id": "907a512a-2cbd-4622-a1a5-4941a2829001",
                     "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
+                    "interactions": "Press",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "ActionPressed",
@@ -327,10 +358,21 @@
                     "name": "",
                     "id": "0ae4082d-63ce-4cb3-b574-3129ead587a1",
                     "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
+                    "interactions": "Press(behavior=1)",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "ActionReleased",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ff0adda8-8f58-4b16-8ae8-aceadb9b2dcc",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -426,6 +468,24 @@
                     "type": "PassThrough",
                     "id": "c29b0785-11eb-4cf4-bcaf-9513840f7d3b",
                     "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Decision",
+                    "type": "Button",
+                    "id": "8d9c1737-db60-4555-95c2-23d19d505682",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OnClick",
+                    "type": "Button",
+                    "id": "37556d51-5d9a-4845-899f-ddc1646fafbe",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -847,6 +907,83 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08c5eed5-6248-48ca-b1c6-8acd24695a82",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Decision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "86427bed-55ac-4989-9465-3140d447dd8e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Decision",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4667e5cc-bf9b-475a-95d3-5d7dce6b4cc6",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "OnClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d4ccd539-bbb9-4d5e-81d0-43e1719e9a24",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "OnClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5a356b6f-56e7-4bd7-97a4-3faadd203804",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "OnClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "af4e2fca-e110-495d-b3e0-a35957f348bc",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "OnClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "60326786-7985-478a-ac0f-2f3490a50a41",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "OnClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

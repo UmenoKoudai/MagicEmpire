@@ -14,7 +14,8 @@ public class Attack1 : IStateMachine, ICombo
 
     public void StrongAttack()
     {
-        throw new System.NotImplementedException();
+        _stateIndex = (int)Player.AttackState.StrongAttack1;
+        Exit();
     }
 
     public void WeakAttack()
@@ -25,10 +26,10 @@ public class Attack1 : IStateMachine, ICombo
 
     public void Enter()
     {
-        _player.Anim.SetTrigger("InplaceAttack");
+        _player.Anim.SetTrigger("WeakAttack");
         _player.StateChange(Player.MoveState.Stop);
-        _player.SlashEffect[0].Play();
         _timer = 0;
+        _player.Rb.velocity = Vector3.zero;
         if (_player.InRangeEnemy.Count <= 0) return;
         foreach (var enemy in _player.InRangeEnemy)
         {

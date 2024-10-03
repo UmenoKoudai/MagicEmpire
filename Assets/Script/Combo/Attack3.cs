@@ -18,7 +18,8 @@ public class Attack3 : IStateMachine, ICombo
 
     public void StrongAttack()
     {
-        throw new System.NotImplementedException();
+        _stateIndex = (int)Player.AttackState.StrongAttack3;
+        Exit();
     }
 
     public void WeakAttack()
@@ -31,16 +32,14 @@ public class Attack3 : IStateMachine, ICombo
     public async void Enter()
     {
         _timer = 0;
-        _player.Anim.SetTrigger("InplaceAttack");
+        _player.Anim.SetTrigger("WeakAttack");
         _player.StateChange(Player.MoveState.Stop);
-        _player.SlashEffect[2].Play();
+        _player.Rb.velocity = Vector3.zero;
         if (_player.InRangeEnemy.Count <= 0) return;
         foreach (var enemy in _player.InRangeEnemy)
         {
             enemy.Hit(_player.Attack);
         }
-        await UniTask.Delay(TimeSpan.FromSeconds(0.08f));
-        _player.SlashEffect[3].Play();
     }
 
     public void Exit()

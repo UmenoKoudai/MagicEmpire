@@ -19,6 +19,9 @@ public class FreeMove : IStateMachine
         //最初に移動する位置を計算する
         _direction = GetDir();
         _direction.y = 0;
+        _enemy.Anime.SetBool("IsWalk", true);
+        _enemy.Anime.SetBool("IsIdol", false);
+        _enemy.Anime.SetBool("IsRun", false);
     }
 
     public void Exit()
@@ -31,12 +34,11 @@ public class FreeMove : IStateMachine
         var velocity = (_direction - _enemy.transform.position).normalized * _enemy.Speed;
         velocity.y = _enemy.Rb.velocity.y;
         _enemy.Rb.velocity = velocity;
+        _enemy.transform.forward = velocity;
     }
 
     public void Update()
     {
-        _enemy.Anime.SetFloat("MoveState", (int)EnemyBase.AnimationState.Walk);
-        _enemy.transform.forward = _direction;
         //プレイヤーを発見したらチェイスステートに移動する
         var playerDistance = Vector3.Distance(_enemy.transform.position, _player.transform.position);
         if(playerDistance < _enemy.SerchRange)

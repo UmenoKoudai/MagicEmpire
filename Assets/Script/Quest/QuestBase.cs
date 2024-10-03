@@ -13,5 +13,5 @@ public interface IQuest
     /// <summary>
     /// Œ‚”j”‚ğ‘‚â‚·
     /// </summary>
-    public abstract void CountUp();
+    public abstract int CountUp();
 }

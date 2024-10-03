@@ -1,4 +1,3 @@
-using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,6 +18,7 @@ public class NormalMove : IStateMachine, IInputAction
 
     public void ActionPressed()
     {
+        Debug.Log("ノーマルムーブ");
         _state = (int)Player.MoveState.Dush;
         Exit();
     }

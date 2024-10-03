@@ -53,17 +53,23 @@ public class DushMove : IStateMachine, IInputAction
 
     public void Update()
     {
-        _h = Input.GetAxis("Horizontal");
-        _v = Input.GetAxis("Vertical");
         _player.Anim.SetFloat("Speed", _player.Rb.velocity.magnitude);
 
-        if (!_player.IsController)
+        if (_player.IsController)
         {
-            //左シフトから手を離したら通常移動に移行する
-            if (Input.GetKeyUp(KeyCode.LeftShift))
-            {
-                Exit();
-            }
+            _h = _player.MoveVector.x;
+            _v = _player.MoveVector.z;
+        }
+        else
+        {
+            _h = Input.GetAxis("Horizontal");
+            _v = Input.GetAxis("Vertical");
+        }
+
+        //左シフトから手を離したら通常移動に移行する
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            Exit();
         }
     }
 }

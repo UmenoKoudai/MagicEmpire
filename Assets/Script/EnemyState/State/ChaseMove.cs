@@ -18,7 +18,9 @@ public class ChaseMove : IStateMachine
 
     public void Enter()
     {
-
+        _enemy.Anime.SetBool("IsRun", true);
+        _enemy.Anime.SetBool("IsIdol", false);
+        _enemy.Anime.SetBool("IsWalk", false);
     }
 
     public void Exit()

@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.Windows;
 
 public class Player : MonoBehaviour, IPose, IHit
 {
@@ -13,11 +14,15 @@ public class Player : MonoBehaviour, IPose, IHit
     private bool _isController;
     public bool IsController => _isController;
 
+    [SerializeField]
+    PlayerInputController _controller;
+
     [Header("キャラの動きに関する設定")]
     [SerializeField, Tooltip("プレイヤーのHP")]
     private int _hp;
     public int HP
     {
+        get => _hp;
         set
         {
             _hp = value;
@@ -54,24 +59,9 @@ public class Player : MonoBehaviour, IPose, IHit
     private ParticleSystem _dushEffect;
     public ParticleSystem DushEffect => _dushEffect;
 
-    #endregion
+    [SerializeField]
+    private CinemachineFreeLook _freeLookCamera;
 
-    #region 削除予定
-    //[Header("カメラに関する設定")]
-    //[SerializeField, Tooltip("プレイヤーカメラ")]
-    //private CinemachineVirtualCamera _playerCamera;
-    //[SerializeField, Tooltip("デフォルトのY座標")]
-    //private float _defaultPositionY = 5f;
-    //public float DefaultPositionY => _defaultPositionY;
-    //[SerializeField, Tooltip("デフォルトのY角度")]
-    //private float _defaultRotationY = 2f;
-    //public float DefaultRotationY => _defaultRotationY;
-    //[SerializeField, Tooltip("ダッシュ時のY座標")]
-    //private float _dushPositionY = 4f;
-    //public float DushPositionY => _dushPositionY;
-    //[SerializeField, Tooltip("ダッシュ時のY角度")]
-    //private float _dushRotationY = 4f;
-    //public float DushRotationY => _dushRotationY;
     #endregion
 
     #region　非シリアライズ変数
@@ -83,6 +73,7 @@ public class Player : MonoBehaviour, IPose, IHit
     private List<EnemyBase> _inRangeEnemy;
     public List<EnemyBase> InRangeEnemy => _inRangeEnemy;
 
+    private PlayerInput _input;
     private float _defaultSpeed;
     private float _defaultAnimSpeed;
     #endregion
@@ -138,6 +129,10 @@ public class Player : MonoBehaviour, IPose, IHit
         Attack1,
         Attack2,
         Attack3,
+        StrongAttack1,
+        StrongAttack2,
+        StrongAttack3,
+        StrongAttack4,
 
         Max,
     }
@@ -148,18 +143,10 @@ public class Player : MonoBehaviour, IPose, IHit
         _inRangeEnemy = new List<EnemyBase>();
         Rb = GetComponent<Rigidbody>();
         Anim = GetComponent<Animator>();
-        _states[(int)MoveState.Normal] = new NormalMove(this);
-        _states[(int)MoveState.Dush] = new DushMove(this);
-        _states[(int)MoveState.Step] = new StepMove(this);
-        _attackState[(int)AttackState.Idol] = new Idol(this);
-        _attackState[(int)AttackState.Attack1] = new Attack1(this);
-        _attackState[(int)AttackState.Attack2] = new Attack2(this);
-        _attackState[(int)AttackState.Attack3] = new Attack3(this);
-        _currentState = _states[(int)_nowState];
-        _currentAttack = _attackState[(int)_nowAttack];
-        _currentAttack.Enter();
         Anim.speed = 1.5f;
         _hpSlider.fillAmount = 1;
+        MoveStateInit();
+        AttackStateInit();
     }
 
     void Update()
@@ -174,6 +161,33 @@ public class Player : MonoBehaviour, IPose, IHit
         _currentAttack.FixedUpdate();
         if (_nowState == MoveState.Stop) return;
         _currentState.FixedUpdate();
+    }
+
+    /// <summary>
+    /// 動きに関するステートマシーンを初期化する
+    /// </summary>
+    private void MoveStateInit()
+    {
+        _states[(int)MoveState.Normal] = new NormalMove(this);
+        _states[(int)MoveState.Dush] = new DushMove(this);
+        _states[(int)MoveState.Step] = new StepMove(this);
+        _currentState = _states[(int)_nowState];
+    }
+
+    /// <summary>
+    /// 攻撃に関するステートマシーンを初期化する
+    /// </summary>
+    private void AttackStateInit()
+    {
+        _attackState[(int)AttackState.Idol] = new Idol(this);
+        _attackState[(int)AttackState.Attack1] = new Attack1(this);
+        _attackState[(int)AttackState.Attack2] = new Attack2(this);
+        _attackState[(int)AttackState.Attack3] = new Attack3(this);
+        _attackState[(int)AttackState.StrongAttack1] = new StrongAttack1(this);
+        _attackState[(int)AttackState.StrongAttack2] = new StrongAttack2(this);
+        _attackState[(int)AttackState.StrongAttack3] = new StrongAttack3(this);
+        _attackState[(int)AttackState.StrongAttack4] = new StrongAttack4(this);
+        _currentAttack = _attackState[(int)_nowAttack];
     }
 
     /// <summary>
@@ -265,8 +279,8 @@ public class Player : MonoBehaviour, IPose, IHit
     /// <param name="damage">相手の攻撃力</param>
     public void Hit(int damage)
     {
-        _hp -= damage;
-        Instantiate(_hitEffect, transform.position, Quaternion.identity);
+        HP -= damage;
+        //Instantiate(_hitEffect, transform.position, Quaternion.identity);
     }
 
     /// <summary>
@@ -293,33 +307,53 @@ public class Player : MonoBehaviour, IPose, IHit
         }
     }
 
-    public void OnMove(InputAction.CallbackContext context)
+    public void EffectPlay(int index)
     {
-        MoveVector = context.ReadValue<Vector3>();
-        Debug.Log($"入力された{MoveVector}");
+        _slashEffect[index].Play();
     }
 
-    public void OnActionPressed()
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        MoveVector = context.ReadValue<Vector2>();
+    }
+
+    public void OnActionPressed(InputAction.CallbackContext context)
     {
         var action = (IInputAction)_currentState;
         action.ActionPressed();
     }
 
-    public void OnActionReleased() 
+    public void OnActionReleased(InputAction.CallbackContext context) 
     {
         var action = (IInputAction)_currentState;
         action.ActionReleased();
     }
 
-    public void OnStrongAttack()
+    private int strongAttack = 0;
+    public void OnStrongAttack(InputAction.CallbackContext context)
     {
         var combo = (ICombo)_currentAttack;
         combo.StrongAttack();
+        if (_inRangeEnemy.Count <= 0) return;
+
     }
 
-    public void OnWeakAttack()
+    private int weakattack = 0;
+    public void OnWeakAttack(InputAction.CallbackContext context)
     {
+        //weakattack++;
+        //Debug.Log($"Weak{weakattack}");
         var combo = (ICombo)_currentAttack;
         combo.WeakAttack();
+    }
+
+    public void GameEnd()
+    {
+        _controller.enabled = false;
+    }
+
+    public void  ResetAnimation()
+    {
+        Anim.Update(Time.deltaTime * 0.1f);
     }
 }

@@ -1,24 +1,52 @@
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class EnemyManager : MonoBehaviour
 {
-    [SerializeField, Tooltip("")]
+    [SerializeField, Tooltip("フィールドに配置しているエネミーを格納")]
     private EnemyBase[] _sponeEnemy;
 
-    [SerializeField, Tooltip("")]
+    [SerializeField, Tooltip("クエストを格納する")]
     [SerializeReference, SubclassSelector]
     private IQuest[] _quests;
 
-    [SerializeField, Tooltip("")]
+    [SerializeField, Tooltip("クエストの内容を表示するテキスト")]
     private Text _questContans;
 
-    [SerializeField, Tooltip("")]
+    [SerializeField, Tooltip("現在の撃破数を表示するテキスト")]
     private Text _clearCount;
 
+    [SerializeField]
+    private GameObject _inGameCanvas;
+
+    [SerializeField]
+    private GameObject _gameEndCanvas;
+
+    [SerializeField]
+    private float _responeInterval;
+
+    [SerializeField]
+    private SceneChange _sceneManager;
+
     private IQuest _quest;
+    private List<EnemyBase> _destroyEnemys = new List<EnemyBase>();
 
     private int _questIndex;
+    private float _timer;
+
+    private int _destroyCount;
+    public int DestroyCount
+    {
+        get => _destroyCount;
+        set
+        {
+            _destroyCount = value;
+            _clearCount.text = $"({_destroyCount}/{_quest.ClearCount})";
+        }
+    }
+
     public int QuestIndex
     {
         get => _questIndex;
@@ -35,6 +63,7 @@ public class EnemyManager : MonoBehaviour
             {
                 _questContans.text = "クエスト完了";
                 _clearCount.text = "";
+                GameEnd();
             }
         }
     }
@@ -44,7 +73,7 @@ public class EnemyManager : MonoBehaviour
         //デリゲートをセットする
         foreach(var enemy in _sponeEnemy)
         {
-            enemy.OnEnemyDestroy += DestroyCount;
+            enemy.OnEnemyDestroy += Destroy;
         }
         QuestIndex = 0;
     }
@@ -53,10 +82,15 @@ public class EnemyManager : MonoBehaviour
     /// エネミーが倒されたら呼ばれる
     /// </summary>
     /// <param name="type"></param>
-    private void DestroyCount(EnemyBase.EnemyType type)
+    private void Destroy(EnemyBase enemy)
     {
-        if (type != _quest.Type) return;
-        _quest.CountUp();
+        if (enemy.Type != _quest.Type) return;
+        DestroyCount = _quest.CountUp();
         if (_quest.Judge()) QuestIndex++;
+    }
+
+    private void GameEnd()
+    {
+        _sceneManager.SceneSequence("Result");
     }
 }

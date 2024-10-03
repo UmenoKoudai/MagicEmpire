@@ -20,6 +20,9 @@ public class AttackMove : IStateMachine
     public void Enter()
     {
         _enemy.Rb.velocity = Vector3.zero;
+        _enemy.Anime.SetBool("IsIdol", true);
+        _enemy.Anime.SetBool("IsRun", false);
+        _enemy.Anime.SetBool("IsWalk", false);
     }
 
     public void Exit()
@@ -33,15 +36,13 @@ public class AttackMove : IStateMachine
 
     public void Update()
     {
-        _enemy.Anime.SetFloat("MoveState", (int)EnemyBase.AnimationState.Idle);
         var dir = _player.transform.position - _enemy.transform.position;
-        //_enemy.transform.DORotate(dir, 0.5f, mode: RotateMode.Fast);
-        _enemy.transform.forward = new Vector3(dir.x, _enemy.transform.position.y, dir.z);
+        _enemy.transform.forward = new Vector3(dir.x, 0, dir.z);
         _timer += Time.deltaTime;
-        if(_timer > 10)
+        if(_timer > _enemy.AttackInterval)
         {
-            _enemy.Anime.SetFloat("MoveState", (int)EnemyBase.AnimationState.Attack);
-            Debug.Log("Attack");
+            _enemy.Anime.SetTrigger("Attack");
+            _player.Hit(_enemy.Attack);
             _timer = 0;
         }
 

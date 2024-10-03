@@ -10,7 +10,9 @@ public class EnemyBase : MonoBehaviour, IHit
 {
     [SerializeField]
     private EnemyType _type;
+    public EnemyType Type => _type;
 
+    [Header("エネミーのステータスに関する数値")]
     [SerializeField, Tooltip("エネミーのHP")]
     private int _hp;
     public int HP 
@@ -20,20 +22,17 @@ public class EnemyBase : MonoBehaviour, IHit
         {
             _hp = value;
             _hpSlider.value = _hp;
-            if (_hp <= 0)
+            if (_hp <= 0 && _state != EnemyState.EnemyDie)
             {
+                _isDestroy = true;
                 StateChange(EnemyState.EnemyDie);
-                OnEnemyDestroy?.Invoke(_type);
+                OnEnemyDestroy?.Invoke(this);
             }
         }
     }
 
     [SerializeField]
     private Slider _hpSlider;
-
-    [SerializeField]
-    private ParticleSystem _hitEffect;
-    public ParticleSystem HitEffect => _hitEffect;
 
     [SerializeField, Tooltip("エネミーの攻撃力")]
     private int _attack;
@@ -43,6 +42,7 @@ public class EnemyBase : MonoBehaviour, IHit
     private float _speed;
     public float Speed => _speed;
 
+    [Header("エネミーの様々な範囲")]
     [SerializeField, Tooltip("敵を発見する範囲")]
     private float _serchRange;
     public float SerchRange => _serchRange;
@@ -59,19 +59,37 @@ public class EnemyBase : MonoBehaviour, IHit
     private float _nextPointRange;
     public float NextPointRange => _nextPointRange;
 
-    [SerializeField]
-    private Renderer _renderer;
-    public Renderer EnemyRender => _renderer;
-
+    [Header("インターバル")]
     [SerializeField]
     private float _hitStopTimer;
     public float HitStopTimer => _hitStopTimer;
 
-    [Header("デバック用")]
     [SerializeField]
-    private GameObject _marker;
+    private float _attackInterval;
+    public float AttackInterval => _attackInterval;
 
-    public event Action<EnemyType> OnEnemyDestroy;
+
+    [Header("エフェクト")]
+    [SerializeField]
+    private ParticleSystem _hitEffect;
+    public ParticleSystem HitEffect => _hitEffect;
+
+    [SerializeField]
+    private ParticleSystem _dieEffect;
+    public ParticleSystem DedieEffect => _dieEffect;
+
+    public event Action<EnemyBase> OnEnemyDestroy;
+    private int _defaultHp;
+
+    [Header("敵を倒したときに非表示にするオブジェクト")]
+    [SerializeField]
+    private GameObject _destroyBody;
+    public GameObject DestroyBody => _destroyBody;
+
+    [SerializeField]
+    private GameObject _hpBar;
+    public GameObject HpBar => _hpBar;
+
     public enum AnimationState
     {
         Walk = 1,
@@ -83,6 +101,7 @@ public class EnemyBase : MonoBehaviour, IHit
     public enum EnemyType
     {
         Slime,
+        TurtleShell,
     }
 
     #region エネミーの状態管理ステート
@@ -93,6 +112,8 @@ public class EnemyBase : MonoBehaviour, IHit
 
     public Rigidbody Rb { get; set; }
     public Animator Anime { get; set; }
+    private bool _isDestroy = false;
+    public bool IsDestroy { get => _isDestroy; set => _isDestroy = value; }
 
     public enum EnemyState
     {
@@ -103,6 +124,7 @@ public class EnemyBase : MonoBehaviour, IHit
         AttackMove,
         Enemyhit,
         EnemyDie,
+        EnemyRespone,
 
         Max,
     }
@@ -113,7 +135,6 @@ public class EnemyBase : MonoBehaviour, IHit
         get => _state;
         set
         {
-            Debug.Log($"ChangeState:{value}");
             if (_state == value) return;
             _state = value;
             _currentState = _states[(int)_state];
@@ -127,17 +148,17 @@ public class EnemyBase : MonoBehaviour, IHit
     /// </summary>
     public virtual void Init()
     {
-        Debug.Log("Virtual");
         Rb = GetComponent<Rigidbody>();
         Anime = GetComponent<Animator>();
         _hpSlider.maxValue = _hp;
         _hpSlider.value = _hp;
+        _defaultHp = _hp;
     }
 
     public void ManualUpdate()
     {
+        Debug.Log(_state);
         _currentState?.Update();
-        Debug.Log($"{_currentState}");
     }
 
     public void ManualFixedUpdate()
@@ -177,16 +198,8 @@ public class EnemyBase : MonoBehaviour, IHit
 
     public void HitStop()
     {
-        //Rb.velocity = Vector3.zero;
-        //_defaultAnimeSpeed = Anime.speed;
-        //Anime.speed = 0;
-        //var dir = transform.position - _player.transform.position;
-        //DOTween.Sequence().SetDelay(_hitStopTimer).AppendCallback(() =>
-        //{
-        //    Anime.speed = _defaultAnimeSpeed; 
-        //    Rb.AddForce((dir.normalized) * 100f, ForceMode.Impulse);
-        //});
-        //Debug.Log("攻撃された");
+        if (_state == EnemyState.EnemyDie) return;
+        StateChange(EnemyState.Enemyhit);
     }
 
     /// <summary>
@@ -196,14 +209,13 @@ public class EnemyBase : MonoBehaviour, IHit
     public void Hit(int damage)
     {
         if (_state == EnemyState.EnemyDie) return;
-        StateChange(EnemyState.Enemyhit);
         HP -= damage;
         _hitEffect.Play();
     }
 
-    public void EnemyDestroy()
+    public void Respone()
     {
-        Destroy(gameObject);
+        HP = _defaultHp;
     }
 
     public void Log(string message)
